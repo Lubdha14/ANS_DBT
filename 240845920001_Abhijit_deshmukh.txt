@@ -1,0 +1,79 @@
+SET-2
+
+
+Section 1
+
+Q1
+
+create table login (id INT AUTO_INCREMENT PRIMARY KEY,username VARCHAR(40) NOT NULL UNIQUE,
+    password VARCHAR(20) NOT NULL,confirm_password VARCHAR(20) NOT NULL,
+    CHECK (password = confirm_password)
+);
+
+Q2.
+select * from emp where date_format(hiredate,'%M')='July';
+
+Q3.
+select sal from emp order by sal desc limit 1 offset 3;
+
+Q4.
+insert into dept values(60,'culture','kolhapur','kol@1234','01/01/2020'),(70,'sports','satara','sat@123','02/01/1989'),(80,'management','Mumbai','mum@123','01/01/1985');
+
+Q5
+create view avg_sal as select * from emp where sal>(select avg(sal) from emp);
+
+select * from avg_sal;
+
+Q6
+select * from emp where date_format(hiredate,'%y')<1991;
+
+Q7
+ select * from emp limit 1 offset 6;
+
+Q8
+select avg(sal) 'Average salary' from emp e
+    -> join dept d
+    -> on e.deptno=d.deptno
+    -> where d.dname='accounting';
+
+Q9
+select job,count(job) 'No of employee' from emp group by job having count(job)>5;
+
+Q10
+select ename,concat('$',(sal+(sal*0.15))) 'New Salary' from emp;
+
+section 2
+
+
+DROP PROCEDURE IF EXISTS empSearch;
+DELIMITER $$
+CREATE PROCEDURE empSearch(IN edeptno INT)
+BEGIN
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE emp_id INT;
+    DECLARE emp_name VARCHAR(255);
+    DECLARE emp_cursor CURSOR FOR SELECT empno, ename FROM emp WHERE deptno = edeptno;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    OPEN emp_cursor;
+
+    
+    FETCH emp_cursor INTO emp_id, emp_name;
+    IF done THEN
+        SELECT 'Employee not found' AS message;
+    ELSE
+        
+        SET done = FALSE;
+        SELECT emp_id, emp_name;
+        WHILE NOT done DO
+            FETCH emp_cursor INTO emp_id, emp_name;
+            IF NOT done THEN
+                SELECT emp_id, emp_name;
+            END IF;
+        END WHILE;
+    END IF;
+
+    CLOSE emp_cursor;
+END $$
+DELIMITER ;
+
